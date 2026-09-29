@@ -28,12 +28,34 @@ services:
       DUMMYJSON_BASE_URL: ${DUMMYJSON_BASE_URL:-https://dummyjson.com}
       DUMMYJSON_TIMEOUT_SECONDS: ${DUMMYJSON_TIMEOUT_SECONDS:-20}
       SYNC_PAGE_SIZE: ${SYNC_PAGE_SIZE:-100}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-1800}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "127.0.0.1:8000:8000"
+    networks: [backend]
+
+  sync-worker:
+    build: .
+    command: ["python", "-m", "app.scheduler"]
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      JWT_ISSUER: ${JWT_ISSUER:-dummyjson-sync}
+      JWT_ACCESS_TOKEN_MINUTES: ${JWT_ACCESS_TOKEN_MINUTES:-30}
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      DUMMYJSON_BASE_URL: ${DUMMYJSON_BASE_URL:-https://dummyjson.com}
+      DUMMYJSON_TIMEOUT_SECONDS: ${DUMMYJSON_TIMEOUT_SECONDS:-20}
+      SYNC_PAGE_SIZE: ${SYNC_PAGE_SIZE:-100}
+      SYNC_INTERVAL_SECONDS: ${SYNC_INTERVAL_SECONDS:-1800}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      db:
+        condition: service_healthy
     networks: [backend]
 
 volumes:

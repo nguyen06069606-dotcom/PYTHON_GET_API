@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     dummyjson_base_url: str = "https://dummyjson.com"
     dummyjson_timeout_seconds: int = 20
     sync_page_size: int = 100
+    sync_interval_seconds: int = 1800
     log_level: str = "INFO"
 
     @field_validator("jwt_secret")
