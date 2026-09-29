@@ -38,6 +38,10 @@ An unsuccessful upstream import is recorded in `sync_runs`; product rows are wri
 
 Copy `.env.example` to `.env`, update all secrets, then run `docker compose up --build -d`. Check `docker compose logs -f api` and `GET http://127.0.0.1:8000/health/ready` from the host. For a standalone Python run, install `requirements.txt`, set environment variables, run `alembic upgrade head`, then `uvicorn app.main:app`.
 
+## Test on a local Ubuntu VM
+
+Use `compose.vm.yaml` only on a trusted local VM. It publishes API port 8000 on the VM network so another machine can reach `http://<VM-IP>:8000`; do not use this compose file on a public production host. Clone this repository onto the VM, copy `.env.example` to `.env`, set strong local-only secrets and `DATABASE_URL=postgresql+psycopg://dummyjson_app:<POSTGRES_PASSWORD>@db:5432/dummyjson`, then run `sudo docker compose -p dummyjson-vm -f compose.vm.yaml up -d --build`. Check `/health/ready`, log in at `/auth/token`, then call `/admin/sync`. `docker compose down` keeps the named database volume; never add `-v` if you want to retain test data.
+
 ## Operational notes
 
 Back up PostgreSQL volumes with database-aware backups and test restores. Rotate JWT/database secrets deliberately. Use HTTPS at the reverse proxy, restrict that proxy and Docker networks, set resource limits in Portainer, and monitor container logs and free disk. The service does not configure TLS termination, automatic scheduled sync, or cloud firewall rules; those depend on the target server and Portainer setup.
