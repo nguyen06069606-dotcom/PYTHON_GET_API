@@ -60,6 +60,19 @@ services:
         condition: service_healthy
     networks: [backend]
 
+  adminer:
+    image: adminer:4
+    profiles: [db-ui]
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "127.0.0.1:18080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [backend]
+
 volumes:
   postgres_data:
 

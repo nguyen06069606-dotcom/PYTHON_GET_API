@@ -42,6 +42,8 @@ Copy `.env.example` to `.env`, update all secrets, then run `docker compose up -
 
 Use `compose.vm.yaml` only on a trusted local VM. It publishes API port 18000 on the VM network so another machine can reach `http://<VM-IP>:18000`; change the host port if it is already in use. Do not use this compose file on a public production host. Clone this repository onto the VM, copy `.env.example` to `.env`, set strong local-only secrets and `DATABASE_URL=postgresql+psycopg://dummyjson_app:<POSTGRES_PASSWORD>@db:5432/dummyjson`, then run `sudo docker compose -p dummyjson-vm -f compose.vm.yaml up -d --build`. Check `/health/ready`; the worker syncs immediately and then every 30 minutes by default. `docker compose down` keeps the named database volume; never add `-v` if you want to retain test data.
 
+To browse VM test tables in a browser, start the optional Adminer service with `sudo docker compose -p dummyjson-vm -f compose.vm.yaml --profile db-ui up -d adminer`. It binds to VM loopback port 18080. From your PC, create an SSH tunnel with `ssh -L 18080:127.0.0.1:18080 <user>@<VM-IP>`, then open `http://127.0.0.1:18080`. Log in with system `PostgreSQL`, server `db`, database `dummyjson`, and the PostgreSQL username/password from `.env`.
+
 ## Operational notes
 
 Back up PostgreSQL volumes with database-aware backups and test restores. Rotate JWT/database secrets deliberately. Use HTTPS at the reverse proxy, restrict that proxy and Docker networks, set resource limits in Portainer, and monitor container logs and free disk. The service does not configure TLS termination, automatic scheduled sync, or cloud firewall rules; those depend on the target server and Portainer setup.
